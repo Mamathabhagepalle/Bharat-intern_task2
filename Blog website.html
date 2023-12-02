@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2023 by anonymous (http://jsbin.com/nebujeyewo/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>My Blog</title>
+<style id="jsbin-css">
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header, footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1em;
+}
+
+main {
+    max-width: 800px;
+    margin: 2em auto;
+    padding: 0 1em;
+}
+
+article {
+    margin-bottom: 2em;
+}
+
+h2 {
+    color: #333;
+}
+
+p {
+    color: #666;
+}
+
+</style>
+</head>
+<body>
+    <header>
+        <h1>My Blog</h1>
+    </header>
+    <main id="blog-posts">
+        <!-- Blog posts will be displayed here -->
+    </main>
+    <footer>
+        <p>&copy; 2023 My Blog</p>
+    </footer>
+<script id="jsbin-javascript">
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+const port = 3000;
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost/blog', { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+// Define a blog post schema
+const postSchema = new mongoose.Schema({
+    title: String,
+    content: String
+});
+
+const Post = mongoose.model('Post', postSchema);
+
+// Set up middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static('public'));
+
+// Get all blog posts
+app.get('/api/posts', async (req, res) => {
+    const posts = await Post.find();
+    res.json(posts);
+});
+
+// Create a new blog post
+app.post('/api/posts', async (req, res) => {
+    const { title, content } = req.body;
+    const post = new Post({ title, content });
+    await post.save();
+    res.status(201).json(post);
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
+{
+    "name": "blog-app",
+    "version": "1.0.0",
+    "main": "server.js",
+    "dependencies": {
+        "express": "^4.17.1",
+        "mongoose": "^6.0.12"
+    }
+}
+
+</script>
+</body>
+</html>
